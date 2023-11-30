@@ -1,12 +1,11 @@
-# Download the helper library from https://www.twilio.com/docs/python/install
 import os
 from twilio.rest import Client
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-account_sid = os.environ['TWILIO_SID']
-auth_token = os.environ['TWILIO_TOKEN']
+account_sid = os.getenv('TWILIO_SID')
+auth_token = os.getenv('TWILIO_TOKEN')
 client = Client(account_sid, auth_token)
 
 
