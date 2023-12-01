@@ -6,14 +6,18 @@ import openai
 from twilio.rest import Client
 import soundfile as sf
 from dotenv import load_dotenv, find_dotenv
-
+import base64
 
 load_dotenv(find_dotenv())
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
 account_sid = os.getenv('TWILIO_SID')
 auth_token = os.getenv('TWILIO_TOKEN')
 client = Client(account_sid, auth_token)
+
+sid_encoded = base64.b64encode(f"{account_sid}:{auth_token}".encode("utf-8"))
+sid_encoded = sid_encoded.decode("utf-8")
 
 def chat_completion(prompt: str) -> str:
     response = openai.ChatCompletion.create(
@@ -45,31 +49,13 @@ def create_image(prompt: str) -> str:
     )
     return completion['data'][0]['url']
 
-#def transcript_audio(media_url: str) -> dict:
-    try:
-        ogg_file_path = f'{tempfile.gettempdir()}/{uuid.uuid1()}.ogg'
-        data = requests.get(media_url)
-        with open(ogg_file_path, 'wb') as file:
-            file.write(data.content)
-        audio_data, sample_rate = sf.read(ogg_file_path)
-        mp3_file_path = f'{tempfile.gettempdir()}/{uuid.uuid1()}.mp3'
-        sf.write(mp3_file_path, audio_data, sample_rate)
-        audio_file = open(mp3_file_path, 'rb')
-        os.unlink(ogg_file_path)
-        os.unlink(mp3_file_path)
-        transcript = openai.Audio.transcribe(
-            'whisper-1', audio_file, api_key=os.getenv('OPENAI_API_KEY'))
-        return transcript['text']
-    except Exception as e:
-        print('Error at transcript_audio...')
-        print(e)
-        return 'Error at transcript_audio...'
-
 def transcript_audio(media_url: str) -> str:
     try:
         ogg_file_path = f'{tempfile.gettempdir()}/{uuid.uuid1()}.ogg'
-        response = requests.get(media_url, stream=True)
-
+        basic_header = "Basic {}".format(sid_encoded)
+        response = requests.get(media_url, stream=True, headers={
+            "Authorization": basic_header
+        })
         if response.status_code != 200:
             return f"Failed to download the file. Status code: {response.status_code}"
 
@@ -80,12 +66,11 @@ def transcript_audio(media_url: str) -> str:
         with open(ogg_file_path, 'rb') as audio_file:
             transcript = openai.Audio.transcribe(
                 'whisper-1', audio_file, api_key=os.getenv('OPENAI_API_KEY'))
+            print(transcript)
             return transcript['text']
-
     except Exception as e:
         return f'Error at transcript_audio: {e}'
 
     finally:
         if os.path.exists(ogg_file_path):
             os.unlink(ogg_file_path)
-            
