@@ -4,7 +4,6 @@ import tempfile
 import uuid
 import openai
 from twilio.rest import Client
-import soundfile as sf
 from dotenv import load_dotenv, find_dotenv
 import base64
 

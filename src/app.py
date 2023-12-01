@@ -27,5 +27,5 @@ def handle_twilio():
         elif words[0] == '/img':
             query = ' '.join(words[1:])
             response = create_image(query)
-            send_twilio_photo('Yes sir, here is your image', sender_id, response)
+            send_twilio_photo('Here is your image!', sender_id, response)
     return 'OK', 200

@@ -1,15 +1,14 @@
 ## LOCAL
 Remember to set .env with OpenAI API Key, Twillio Token and SID
 
-# On Windows
-set FLASK_APP=run.py
-# On macOS and Linux
-export FLASK_APP=run.py
+# Mac
+ngrok http 5000 -This wakes up local server
+python3 run.py -- This wakes up the API
 
-# On Windows
-set FLASK_ENV=development
-# On macOS and Linux
-export FLASK_ENV=development
+Copy the https URL from ngrok and paste it on Twilio Sandbox Configuration for Whatsapp .app/twilio
 
-# run flask app
-flask run
+ask/ command for triggering open ai chat
+img/ command for triggering Dalle img generation
+voice note triggers voice recognition with whister for transcribe function for open ai chat
+
+Doesn't save a thread. Yet...
